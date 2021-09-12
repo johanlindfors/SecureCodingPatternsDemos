@@ -35,15 +35,9 @@ namespace Domain {
             private readonly string isbn;
 
             public ISBN(string isbn) {
-                // not null
-                IsNotNullOrEmpty(isbn);
-                // 10 or 13 digits
-                Has10Or13Digits(isbn);
-                // valid pattern
-                IsValidISBNPattern(isbn);
-                // valid checksum
-                HasValidChecksum(isbn);
-
+                if(!IsValid(isbn)) {
+                    throw new ArgumentException("Invalid ISBN.");
+                }
                 this.isbn = TrimToDigits(isbn);
             }
 
@@ -52,32 +46,31 @@ namespace Domain {
             }
 
 #region Validation
-            private static void IsNotNullOrEmpty(string isbn) {
-                if(string.IsNullOrEmpty(isbn)) 
-                    throw new ArgumentException("Null or empty initial value to isbn.");
+            private static bool IsValid(string isbn) {
+                return !string.IsNullOrEmpty(isbn) &&
+                       Has10Or13Digits(isbn) &&
+                       IsValidISBNPattern(isbn) &&
+                       HasValidChecksum(isbn);
             }
 
             // Pattern used from https://howtodoinjava.com/java/regex/java-regex-validate-international-standard-book-number-isbns/
             private const string ISBN_PATTERN = "^(?:ISBN(?:-1[03])?:? )?(?=[0-9X]{10}$|(?=(?:[0-9]+[- ]){3})[- 0-9X]{13}$|97[89][0-9]{10}$|(?=(?:[0-9]+[- ]){4})[- 0-9]{17}$)(?:97[89][- ]?)?[0-9]{1,5}[- ]?[0-9]+[- ]?[0-9]+[- ]?[0-9X]$";
 
-            private static void IsValidISBNPattern(string isbn) {
+            private static bool IsValidISBNPattern(string isbn) {
                 Regex rgx = new Regex(ISBN_PATTERN);
-                if(!rgx.IsMatch(isbn))
-                    throw new ArgumentException($"Pattern of '{isbn} isn't valid.");
+                return rgx.IsMatch(isbn);
             }
 
-            private static void Has10Or13Digits(string isbn) {
+            private static bool Has10Or13Digits(string isbn) {
                 var trimmedIsbn = TrimToDigits(isbn);
-
-                if(!(trimmedIsbn.Length == 10 || trimmedIsbn.Length == 13)) 
-                    throw new ArgumentException($"Count of digits in '{isbn}' is {trimmedIsbn.Length}.");
+                return trimmedIsbn.Length == 10 ||
+                       trimmedIsbn.Length == 13;
             }
 
-            private static void HasValidChecksum(string isbn) {
+            private static bool HasValidChecksum(string isbn) {
                 var trimmedIsbn = TrimToDigits(isbn);
-
-                if(!ISBN10ChecksumValid(trimmedIsbn) && !ISBN13ChecksumValid(trimmedIsbn)) 
-                    throw new ArgumentException($"Checksum of '{isbn}' is invalid.");
+                return ISBN10ChecksumValid(trimmedIsbn) ||
+                       ISBN13ChecksumValid(trimmedIsbn);
             }
 
             private static bool ISBN10ChecksumValid(string isbn) {
@@ -104,6 +97,7 @@ namespace Domain {
             }
 #endregion
 
+            // Canocalization
             public static string TrimToDigits(string isbn) {
                 if(isbn.StartsWith("ISBN-")) {
                     isbn = isbn.Remove(5,2);
