@@ -23,6 +23,12 @@ namespace Domain {
             public ISBN ISBN { get; }
             // more code here
 
+            private Book() { }
+
+            public override string ToString() {
+                return this.ISBN.ToString();
+            }
+
             public Book(string isbn) {
                 this.ISBN = new ISBN(isbn);
             }
@@ -160,6 +166,17 @@ namespace Domain {
 
         [TestClass]
         public class BookTests {
+
+            [TestMethod]
+            public void Create_BookWithoutISBN_ShouldNotWork() {
+                // Arrange
+                Book book;
+
+                // Act
+                //var bookAsString = book.ToString();
+
+                // Assert
+            }
 
             [DataTestMethod]
             [DataRow("0-596-52068-9")]
