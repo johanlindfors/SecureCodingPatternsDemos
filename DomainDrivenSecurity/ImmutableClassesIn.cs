@@ -1,21 +1,30 @@
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Collections.ObjectModel;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Temp {
     class Student {
         public string Name { get; }
         public int RegNo { get; }
-        public IImmutableDictionary<string, string> Metadata { get; }
+        public IReadOnlyDictionary<string, string> Metadata { get; }
 
         public Student(string name, int regNo,
                        IDictionary<string, string> metadata) {
             Name = name;
             RegNo = regNo;
-            Metadata = ImmutableDictionary.ToImmutableDictionary(metadata);
+            Metadata = new ReadOnlyDictionary<string,string>(CloneDictionary(metadata));
+        }
+
+        private static IDictionary<TKey, TValue> CloneDictionary<TKey, TValue>(IDictionary<TKey,TValue> original) {
+            var clone = new Dictionary<TKey, TValue>();
+            foreach (var entry in original)
+            {
+                clone.Add(entry.Key, entry.Value);
+            }
+            return clone;
         }
     }
 
@@ -119,7 +128,7 @@ namespace Temp {
 
                 // Act
                 var student = new Student("Johan", 1234, metadata);
-                student.Metadata.Remove("Company"); // Nothing happens
+                // student.Metadata.Remove("Company"); // Nothing happens
 
                 // Assert
                 var clonedMetadata = student.Metadata;
@@ -157,7 +166,7 @@ namespace Temp {
                 // Act
                 var student = new Student("Johan", 1234, metadata);
                 var clonedMetadata = student.Metadata;
-                clonedMetadata.Remove("Company"); // Nothing happens
+                //clonedMetadata.Remove("Company"); // Nothing happens
 
                 // Assert
                 Assert.IsTrue(clonedMetadata.ContainsKey("City"));
