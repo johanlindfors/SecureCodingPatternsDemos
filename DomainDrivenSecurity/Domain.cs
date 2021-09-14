@@ -51,7 +51,7 @@ namespace Domain {
                 return this.isbn;
             }
 
-#region Validation
+        #region Validation
             private static bool IsValid(string isbn) {
                 return !string.IsNullOrEmpty(isbn) &&
                        Has10Or13Digits(isbn) &&
@@ -101,15 +101,16 @@ namespace Domain {
                 }
                 return sum % 10 == 0;
             }
-#endregion
+        #endregion
 
-            // Canocalization
+        #region Canonicalization
             public static string TrimToDigits(string isbn) {
                 if(isbn.StartsWith("ISBN-")) {
                     isbn = isbn.Remove(5,2);
                 }
                 return new string(isbn.Where(c => Char.IsDigit(c)).ToArray());
             }
+        #endregion
         }
     }
 
