@@ -29,8 +29,8 @@ namespace Domain {
                 return this.ISBN.ToString();
             }
 
-            public Book(string isbn) {
-                this.ISBN = new ISBN(isbn);
+            public Book(ISBN isbn) {
+                this.ISBN = isbn;
             }
         }
     }
@@ -189,13 +189,14 @@ namespace Domain {
             [DataRow("0 596 52068 9")]
             [DataRow("ISBN-10 0-596-52068-9")]
             [DataRow("ISBN-10: 0-596-52068-9")]
-            public void Create_WithValidISBN_ShouldSucceed(string isbn) {
+            public void Create_WithValidISBN_ShouldSucceed(string value) {
                 // Arrange
+                ISBN isbn = new ISBN(value);
                 // Act
                 var book = new Book(isbn);
 
                 // Assert
-                Assert.AreEqual(book.ISBN.ToString(), ISBN.TrimToDigits(isbn));
+                Assert.AreEqual(book.ISBN.ToString(), ISBN.TrimToDigits(value));
             }
 
             [DataTestMethod]
@@ -211,8 +212,10 @@ namespace Domain {
             [DataRow("ISBN-10- 0-596-52068-9")]
             [DataRow("0 512 52068 9")]
             [ExpectedException(typeof(ArgumentException))]
-            public void Create_WithInvalidISBN_ShouldFail(string isbn) {
+            public void Create_WithInvalidISBN_ShouldFail(string value) {
                 // Arrange
+                ISBN isbn = new ISBN(value);
+
                 // Act
                 var book = new Book(isbn);
 
